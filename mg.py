@@ -6,6 +6,11 @@ import sys
 def four_point_sum(p):
     return p[2:, 1:-1] + p[:-2, 1:-1] + p[1:-1, 2:] + p[1:-1, :-2]
 
+def laplacian(p):
+    lp = np.zeros_like(p)
+    lp[1:-1, 1:-1] = four_point_sum(p) - 4 * p[1:-1, 1:-1]
+    return lp
+
 def l2norm(u, h):
     return np.sqrt(h ** u.ndim * (u ** 2).sum())
 
@@ -14,13 +19,15 @@ def jacobi_step(pin, q, d, f, niter=100, tol=1e-5):
     p = pin.copy()
     r = np.zeros_like(pin)
     res = 0
+    k = 0
     for i in range(niter):
-        p[1:-1, 1:-1] = (four_point_sum(p) - d2 * q[1:-1, 1:-1]) / (4 + d2 * f)
-        r[1:-1, 1:-1] = q[1:-1, 1:-1] - (
-                four_point_sum(p) - 4*p[1:-1, 1:-1]) / d2 + f * p[1:-1, 1:-1]  
+        k += 1
+        r = (laplacian(p) / d2 - f * p - q)[1:-1, 1:-1]
+#        p[1:-1, 1:-1] = (four_point_sum(p) - d2 * q[1:-1, 1:-1]) / (4 + d2 * f)
+        p[1:-1, 1:-1] += d2 * r / (4 + d2 * f)
         res = l2norm(r, d)
         if res < tol: break
-    return p, res, i
+    return p, res, k
 
 def restrict(pin):
     p = pin[::2, ::2].copy()
@@ -39,68 +46,83 @@ def prolong(pin):
     return p
 
 def v_cycle(p0, q, d, f, itermax=(10, 10, 10), debug=False):
+    n = p0.shape[0]
+    nlev = int(np.log2(n - 1))
     p, res, niter = jacobi_step(p0, q, d, f, itermax[0])
     if debug: print(f"pre: res={res}, niter={niter}")
-    qlist = []
+    qlist = [q]
     h = d
-    for i in range(nlev):
+    for i in range(1, nlev):
         p = restrict(p)
-        if i == 0:
-            qlist.append(restrict(q))
-        else:
-            qlist.append(restrict(qlist[i-1]))
+        qlist.append(restrict(qlist[i-1]))
         h *= 2
+#        if debug: print(f"down {i} {p.shape} {qlist[i].shape}")
         p, res, niter = jacobi_step(p, qlist[i], h, f, itermax[1])
         if debug: print(f"restrict {i}: res={res}, niter={niter}")
-    for i in range(nlev):
+    for i in range(nlev-2, -1, -1):
         p = prolong(p)
         h /= 2
-        p, res, niter = jacobi_step(p, qlist[nlev - 2 - i], h, 0, itermax[2])
+#        if debug: print(f"up {i} {p.shape} {qlist[i].shape}")
+        p, res, niter = jacobi_step(p, qlist[i], h, 0, itermax[2])
         if debug: print(f"prolong {i}: res={res}, niter={niter}")
-    p, res, niter = jacobi_step(p, q, d, f, itermax[3])
-    if debug: print(f"post: res={res}, niter={niter}")
     return p, res
 
-if __name__ == "__main__":
-#    n = 5
-#    p = np.zeros([n, n])
-#    x = np.linspace(-1, 1, n)
-#    y = x
-#    for i in range(1,n-1):
-#        for j in range(1,n-1):
-#            p[i, j] = np.exp(-(x[i]**2 + y[j]**2))
-#    plt.matshow(p)
-#    plt.show()
-#    p1 = prolong(p)
-#    plt.matshow(p1)
-#    plt.show()
+def prolong_test():
+    n = 5
+    p = np.zeros([n, n])
+    x = np.linspace(-1, 1, n)
+    y = x
+    for i in range(1,n-1):
+        for j in range(1,n-1):
+            p[i, j] = np.exp(-(x[i]**2 + y[j]**2))
+    plt.matshow(p)
+    plt.show()
+    p1 = prolong(p)
+    plt.matshow(p1)
+    plt.show()
+
+def mg_test():
     n = 129 
-    nlev = int(np.log2(n - 1)) - 1
-    itermax = 4, 20, 20, 100
+    itermax = 1, 1, 20000
+    ncycle = 1
     d = 1.0 / (n - 1)
     x = np.linspace(0, 1, n)
     y = np.linspace(0, 1, n)
-    X, Y = np.meshgrid(x, y)
+    X, Y = np.meshgrid(x, y, indexing="ij")
 
     ptrue = (X**2 - X**4) * (Y**4 - Y**2)
-    q = -2 * ((1 - 6 * X*X) * Y*Y * (1- Y*Y) + \
-            (1 - 6 * Y*Y) * X*X * (1- X*X))
+    q = -2 * ((1 - 6 * X*X) * Y*Y * (1 - Y*Y) + \
+              (1 - 6 * Y*Y) * X*X * (1 - X*X))
+
     p0 = np.zeros_like(q)
-    p, res = v_cycle(p0, q, d, 0.0, itermax)
+    p, res = v_cycle(p0, q, d, 0.0, itermax, True)
     err = l2norm(p - ptrue, d)
     print(f"res={res} err={err}")
+    for i in range(1, ncycle):
+        p, res = v_cycle(p, q, d, 0.0, itermax, False)
+        err = l2norm(p - ptrue, d)
+        print(f"cycle={i} res={res} err={err}")
 
-    plt.rcParams["font.size"] = 18
-    fig, ax = plt.subplots(figsize=[10, 8])
-#    c = ax.contourf(x, y, q)
-#    c = ax.contourf(x, y, p)
-#    ax.set_title(f"itermax={itermax} res={res:.2e} l2={err:.2e}")
-#    c = ax.contourf(x, y, ptrue)
-#    ax.set_title(r"$(x^2-x^4)(y^4-y^2)$")
-    c = ax.contourf(x, y, p-ptrue, cmap="coolwarm", vmin=-3e-3, vmax=3e-3)
-    ax.set_title(r"mgrid$-$true")
-    fig.colorbar(c)
-#    fig.savefig("ptrue.png", bbox_inches="tight", dpi=300)
-#    fig.savefig("p.png", bbox_inches="tight", dpi=300)
-    fig.savefig("p-ptrue.png", bbox_inches="tight", dpi=300)
+    plt.rcParams["font.size"] = 12
+    fig, axs = plt.subplots(1, 3, figsize=[14, 4])
+    z = [ptrue, p, ptrue-p]
+    title = [r"$(x^2-x^4)(y^4-y^2)$",
+             f"res={res:.2e} l2={err:.2e}",
+             r"mgrid$-$true"]
+    for j in range(len(z)):
+        ax = axs[j]
+        if j < 2:
+            c = ax.contourf(x, y, z[j], levels=np.linspace(-0.07, 0.0, 8))
+        else:
+            c = ax.contourf(x, y, z[j], cmap="coolwarm", vmin=-5e-6, vmax=5e-6)
+        ax.set_title(title[j])
+        ax.set_aspect("equal")
+        fig.colorbar(c, ax=ax)
+    fig.suptitle(f"Multigrid Jacobi itermax={itermax}")
+    fig.tight_layout()
+    fig.savefig("multigrid_jacobi.png", bbox_inches="tight", dpi=300)
     plt.show()
+
+if __name__ == "__main__":
+#    prolong_test()
+    mg_test()
