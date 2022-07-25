@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from fd import four_point_sum, laplacian, l2norm
 import sys
 
 
@@ -45,10 +46,10 @@ def prolong(pin):
     p[1:imax-1:2, 1:-1:2] = 0.5 * (p[1:imax-1:2, 2::2] + p[1:imax-1:2, :-2:2])
     return p
 
-def v_cycle(p0, q, d, f, itermax=(10, 10, 10), debug=False):
+def v_cycle(p0, q, d, f, itermax=(10, 10, 10), tol=1.0e-5, debug=False):
     n = p0.shape[0]
     nlev = int(np.log2(n - 1))
-    p, res, niter = jacobi_step(p0, q, d, f, itermax[0])
+    p, res, niter = jacobi_step(p0, q, d, f, itermax[0], tol)
     if debug: print(f"pre: res={res}, niter={niter}")
     qlist = [q]
     h = d
@@ -57,13 +58,13 @@ def v_cycle(p0, q, d, f, itermax=(10, 10, 10), debug=False):
         qlist.append(restrict(qlist[i-1]))
         h *= 2
 #        if debug: print(f"down {i} {p.shape} {qlist[i].shape}")
-        p, res, niter = jacobi_step(p, qlist[i], h, f, itermax[1])
+        p, res, niter = jacobi_step(p, qlist[i], h, f, itermax[1], tol)
         if debug: print(f"restrict {i}: res={res}, niter={niter}")
     for i in range(nlev-2, -1, -1):
         p = prolong(p)
         h /= 2
 #        if debug: print(f"up {i} {p.shape} {qlist[i].shape}")
-        p, res, niter = jacobi_step(p, qlist[i], h, 0, itermax[2])
+        p, res, niter = jacobi_step(p, qlist[i], h, f, itermax[2], tol)
         if debug: print(f"prolong {i}: res={res}, niter={niter}")
     return p, res
 
@@ -81,9 +82,8 @@ def prolong_test():
     plt.matshow(p1)
     plt.show()
 
-def mg_test():
+def mg_test(plot=True, itermax=(1, 1, 20000), tol=1e-5, debug=False):
     n = 129 
-    itermax = 1, 1, 20000
     ncycle = 1
     d = 1.0 / (n - 1)
     x = np.linspace(0, 1, n)
@@ -95,34 +95,35 @@ def mg_test():
               (1 - 6 * Y*Y) * X*X * (1 - X*X))
 
     p0 = np.zeros_like(q)
-    p, res = v_cycle(p0, q, d, 0.0, itermax, True)
+    p, res = v_cycle(p0, q, d, 0.0, itermax, tol, debug)
     err = l2norm(p - ptrue, d)
     print(f"res={res} err={err}")
     for i in range(1, ncycle):
-        p, res = v_cycle(p, q, d, 0.0, itermax, False)
+        p, res = v_cycle(p, q, d, 0.0, itermax, tol, debug)
         err = l2norm(p - ptrue, d)
         print(f"cycle={i} res={res} err={err}")
 
-    plt.rcParams["font.size"] = 12
-    fig, axs = plt.subplots(1, 3, figsize=[14, 4])
-    z = [ptrue, p, ptrue-p]
-    title = [r"$(x^2-x^4)(y^4-y^2)$",
-             f"res={res:.2e} l2={err:.2e}",
-             r"mgrid$-$true"]
-    for j in range(len(z)):
-        ax = axs[j]
-        if j < 2:
-            c = ax.contourf(x, y, z[j], levels=np.linspace(-0.07, 0.0, 8))
-        else:
-            c = ax.contourf(x, y, z[j], cmap="coolwarm", vmin=-5e-6, vmax=5e-6)
-        ax.set_title(title[j])
-        ax.set_aspect("equal")
-        fig.colorbar(c, ax=ax)
-    fig.suptitle(f"Multigrid Jacobi itermax={itermax}")
-    fig.tight_layout()
-    fig.savefig("multigrid_jacobi.png", bbox_inches="tight", dpi=300)
-    plt.show()
+    if plot:
+        plt.rcParams["font.size"] = 12
+        fig, axs = plt.subplots(1, 3, figsize=[14, 4])
+        z = [ptrue, p, ptrue-p]
+        title = [r"$(x^2-x^4)(y^4-y^2)$",
+                 f"res={res:.2e} l2={err:.2e}",
+                 r"mgrid$-$true"]
+        for j in range(len(z)):
+            ax = axs[j]
+            if j < 2:
+                c = ax.contourf(x, y, z[j], levels=np.linspace(-0.07, 0.0, 8))
+            else:
+                c = ax.contourf(x, y, z[j], cmap="coolwarm", vmin=-5e-6, vmax=5e-6)
+            ax.set_title(title[j])
+            ax.set_aspect("equal")
+            fig.colorbar(c, ax=ax)
+        fig.suptitle(f"Multigrid Jacobi itermax={itermax}")
+        fig.tight_layout()
+        fig.savefig("multigrid_jacobi.png", bbox_inches="tight", dpi=300)
+        plt.show()
 
 if __name__ == "__main__":
 #    prolong_test()
-    mg_test()
+    mg_test(plot=False, itermax=(1,1,10000), tol=1.0e-4, debug=True)
