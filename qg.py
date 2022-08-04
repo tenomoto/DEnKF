@@ -7,13 +7,14 @@ from ode import rk4
 
 def step(q, psi, y, c=1.0, f=1600, eps=1.0e-5, a=2.0e-12, tau0=tau, itermax=(1, 1, 5000), tol=1.0e-4):
     d = y[1] - y[0]
-    d2 = d ** 2
+    d2 = d * 2
+    dd = d ** 2
     psi[:,:], _ = v_cycle(psi, q, d, f, itermax, tol)
     psix = np.zeros_like(psi)
     dqdt = np.zeros_like(psi)
-    psix[1:-1, 1:-1] = (psi[2:, 1:-1] - psi[:-2, 1:-1]) / d
-    lap3psi = laplacian(laplacian(q + f * psi) / d2) / d2 
-    jac = jacobian(psi, q) / d2
+    psix[1:-1, 1:-1] = (psi[2:, 1:-1] - psi[:-2, 1:-1]) / d2
+    lap3psi = laplacian(laplacian(q + f * psi) / dd) / dd 
+    jac = jacobian(psi, q) / dd
     dqdt[1:-1, 1:-1] = (-c * psix - eps * jac - a * lap3psi + tau0 * np.sin(tau * y[None,]))[1:-1, 1:-1]
     return dqdt
 
@@ -31,7 +32,8 @@ if __name__ == "__main__":
     psi = np.zeros([n, n])
     for i in range(nstep+1): 
         print(f"step {i} p: min={psi.min():5.2e} max={psi.max():5.2e} q: min={q.min():5.2e} max={q.max():5.2e}")
-#        q[1:-1, 1:-1] += rk4(step, q, dt, psi, y, c=0.0, f=0.0, eps=1.0, tau0=0.0)[1:-1, 1:-1]
+#        params = 0.0, 0.0, 1.0, 2.0e-12, 0.0
+#        q[1:-1, 1:-1] += rk4(step, q, dt, psi, y, *params)[1:-1, 1:-1]
         q[1:-1, 1:-1] += rk4(step, q, dt, psi, y)[1:-1, 1:-1]
         if i % nsave == 0:
             np.save(f"q{i:05d}.npy", q)
