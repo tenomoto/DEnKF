@@ -1,12 +1,10 @@
 import numpy as np
 
 
-def four_point_sum(p):
-    return p[2:, 1:-1] + p[:-2, 1:-1] + p[1:-1, 2:] + p[1:-1, :-2]
-
 def laplacian(p):
     lp = np.zeros_like(p)
-    lp[1:-1, 1:-1] = four_point_sum(p) - 4 * p[1:-1, 1:-1]
+    lp[1:-1, 1:-1] = p[2:, 1:-1] + p[:-2, 1:-1] + p[1:-1, 2:] + p[1:-1, :-2] \
+                   - 4 * p[1:-1, 1:-1]
     return lp
 
 def jacobian(p, q):
