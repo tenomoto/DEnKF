@@ -29,8 +29,6 @@ program run_qg
   q(:, :) = 0.0d0 
 !  call random_number(q(2:n-1, 2:n-1))
 !  q(2:n-1, 2:n-1) = 2.0d0 * q(2:n-1, 2:n-1) - 1.0d0
-  call qg_save(un, "q", 0, q)
-  call qg_save(un, "p", 0, qg_psi)
 
   r = 1
   do i=0, nstep
