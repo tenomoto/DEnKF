@@ -7,9 +7,8 @@ program run_qg
   implicit none
 
   integer, parameter :: &
-    n = 129, nstep = 1000, nsave = 100, un = 51
+    n = 129, nstep = 500000, tsave = 100000, nsave = 100, un = 51
   real(kind=dp), parameter ::  dt = 1.5d0
-  integer, dimension(3), parameter :: itermax = [1, 1, 5000]
 
   real(kind=dp), dimension(:), allocatable :: y
   real(kind=dp), dimension(:, :), allocatable :: q, dq
@@ -37,7 +36,7 @@ program run_qg
   do i=0, nstep
     print "(a, i6, 4(a, e12.4))", "step ", i, " p: min=", minval(qg_psi), " max=", maxval(qg_psi), &
       " q: min=", minval(q), " max=", maxval(q)
-    if (mod(i, nsave) == 0) then
+    if (i >= tsave .and. mod(i, nsave) == 0) then
       call qg_save(un, "q", i, q)
       call qg_save(un, "p", i, qg_psi)
       r = r + 1

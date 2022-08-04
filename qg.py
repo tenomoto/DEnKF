@@ -23,7 +23,7 @@ if __name__ == "__main__":
     dt = 1.5
     tsave = 100000 
     nstep = 500000
-    nsave = 200
+    nsave = 100
     itermax = 1, 1, 100
     datadir="free"
     x = np.linspace(0.0, 1.0, n)
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     c, f, eps, a, tau0 = 1.0, 1600, 1.0e-5, 2.0e-12, -tau
     itermax = 1, 1, 100
     tol = 1.0e-4
-    params = psi, y, c, f, eps, a, tau0, itermax, tol
+    params = c, f, eps, a, tau0, itermax, tol
     for i in range(nstep+1): 
         if i % nsave == 0:
             np.save(f"q{i:06d}.npy", q)
