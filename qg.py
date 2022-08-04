@@ -39,7 +39,7 @@ if __name__ == "__main__":
     tol = 1.0e-4
     params = c, f, eps, a, tau0, itermax, tol
     for i in range(nstep+1): 
-        if i % nsave == 0:
+        if i >= tsave and i % nsave == 0:
             np.save(f"q{i:06d}.npy", q)
             np.save(f"p{i:06d}.npy", psi)
         print(f"step {i} p: min={psi.min():5.2e} max={psi.max():5.2e} q: min={q.min():5.2e} max={q.max():5.2e}")
