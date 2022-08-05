@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-t = 1000
+t = 132100
 n = 129
 q = np.fromfile(f"q{t:06d}.dat", dtype=np.float32).reshape(n, n)
 psi = np.fromfile(f"p{t:06d}.dat", dtype=np.float32).reshape(n, n)
@@ -11,7 +11,7 @@ y = np.linspace(0, 1, n)
 plt.rcParams["font.size"] = 18
 fig, axs = plt.subplots(1, 2, figsize=[14, 6])
 z = [q, psi]
-#zmax = [1.5e6, 6.0e2]
+#zmax = [1.5e5, 6.0e1]
 zmax = [1.0e5, 1.0e1]
 title = ["pv", r"$\psi$"]
 for i in range(len(axs)):
