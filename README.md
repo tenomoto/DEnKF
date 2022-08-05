@@ -31,4 +31,6 @@ with QG model also in Fortran.
 
 ## References
 
--
+- Evensen, G., 2004: Sampling strategies and square root analysis schemes for the EnKF. Ocean Dynamics, 54, 539–560, [doi:10.1007/s10236-004-0099-2](https://doi.org/10.1007/s10236-004-0099-2).
+- Sakov, P., and P. R. Oke, 2008: A deterministic formulation of the ensemble Kalman filter: an alternative to ensemble square root filters. Tellus A, 60, 361–371, [doi:10.1111/j.1600-0870.2007.00299.x](https://doi.org/10.1111/j.1600-0870.2007.00299.x).
+
