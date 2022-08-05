@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+t = 1000
 t = 400
 q = np.load(f"q{t:06d}.npy").T
 psi = np.load(f"p{t:06d}.npy").T
