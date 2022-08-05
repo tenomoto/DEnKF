@@ -12,7 +12,7 @@ plt.rcParams["font.size"] = 18
 fig, axs = plt.subplots(1, 2, figsize=[14, 6])
 z = [q, psi]
 #zmax = [1.5e6, 6.0e2]
-zmax = [5.0e4, 5.0e0]
+zmax = [1.0e5, 1.0e1]
 title = ["pv", r"$\psi$"]
 for i in range(len(axs)):
     ax = axs[i]

@@ -21,8 +21,8 @@ def step(q, psi, y, c, f, eps, a, tau0, itermax, tol):
 if __name__ == "__main__":
     n = 129 
     dt = 1.5
-    tsave = 100000 
-    nstep = 500000
+    tsave = 0 
+    nstep = 1000
     nsave = 100
     itermax = 1, 1, 100
     datadir="free"
@@ -35,7 +35,6 @@ if __name__ == "__main__":
     psi = np.zeros([n, n])
 #    c, f, eps, a, tau0 = 0.0, 0.0, 1.0, 2.0e-12, 0.0
     c, f, eps, a, tau0 = 1.0, 1600, 1.0e-5, 2.0e-12, -tau
-    itermax = 1, 1, 100
     tol = 1.0e-4
     params = c, f, eps, a, tau0, itermax, tol
     for i in range(nstep+1): 

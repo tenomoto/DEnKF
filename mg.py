@@ -5,15 +5,15 @@ import sys
 
 
 def jacobi_step(pin, q, d, f, niter=100, tol=1e-5):
-    d2 = d ** 2
+    dd = d * d
     p = pin.copy()
     r = np.zeros_like(pin)
     res = 0
     k = 0
     for i in range(niter):
         k += 1
-        r = (laplacian(p) / d2 - f * p - q)[1:-1, 1:-1]
-        p[1:-1, 1:-1] += d2 * r / (4 + d2 * f)
+        r = (laplacian(p) / dd - f * p - q)[1:-1, 1:-1]
+        p[1:-1, 1:-1] += dd * r / (4 + dd * f)
         res = l2norm(r, d)
         if res < tol: break
     return p, res, k

@@ -24,12 +24,12 @@ contains
     integer, intent(inout) :: niter
 
     integer :: i, j, k, n, kmax
-    real(kind=dp) :: d2, r
+    real(kind=dp) :: dd, r
     real(kind=dp), dimension(:, :), allocatable :: pu
 
     kmax = niter
     n = size(p, 1)
-    d2 = d ** 2
+    dd = d * d 
     allocate(pu(n, n))
     pu(:, :) = 0.0d0
     pu(2:n-1, 2:n-1) = p(2:n-1, 2:n-1)
@@ -38,13 +38,13 @@ contains
       res = 0.0d0
       do j=2, n-1
         do i=2, n-1
-          r = fd_laplacian(p, i, j) / d2 - f * p(i, j) - q(i, j)
-          pu(i, j) = p(i, j) + d2 * r / (4.0d0 + d2 * f)
+          r = fd_laplacian(p, i, j) / dd - f * p(i, j) - q(i, j)
+          pu(i, j) = p(i, j) + dd * r / (4.0d0 + dd * f)
           res =  res + r * r
         end do
       end do
       p(2:n-1, 2:n-1) = pu(2:n-1, 2:n-1)
-      res = sqrt(res * d2)
+      res = sqrt(res * dd)
       if (res < tol) then
         exit
         niter = k

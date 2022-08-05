@@ -29,7 +29,7 @@ contains
     end do
     d = y(2) - y(1)
     d2r = 1.0d0 / d * 2
-    ddr = 1.0d0 / d ** 2
+    ddr = 1.0d0 / d * d
     qg_psi(:, :) = 0.0d0
 
   end subroutine qg_init
@@ -44,7 +44,7 @@ contains
     real(kind=dp), dimension(:, :), intent(in) :: q
     real(kind=dp), dimension(:), intent(in) :: params
 
-    real(kind=dp) :: psix, lap3psi, jac, lap3psix, jacx
+    real(kind=dp) :: psix, lap3psi, jac
     real(kind=dp), dimension(:, :), allocatable :: dqdt, lap2psi
     integer :: n, i, j
 
@@ -54,28 +54,20 @@ contains
     lap2psi(:, :) = 0.0d0
 
     call mg_vcycle(qg_psi, q, d, qg_f)
-!    print *, "psi min=", minval(qg_psi), " max=", maxval(qg_psi)
-!    print *, "q min=", minval(q), " max=", maxval(q)
     do j=2, n-1
       do i=2, n-1
         lap2psi(i, j) = fd_laplacian(q + qg_f * qg_psi, i, j) * ddr
       end do
     end do
-!    print *, "lap2psi min=", minval(lap2psi), " max=", maxval(lap2psi)
-    lap3psix = 0.0d0
-    jacx = 0.0d0
     do j=2, n-1
       do i=2, n-1
         psix = (qg_psi(i+1, j) - qg_psi(i-1, j)) * d2r
         lap3psi = fd_laplacian(lap2psi, i, j) * ddr
         jac = fd_jacobian(qg_psi, q, i, j) * ddr
-        jacx = max(abs(jac), abs(jacx))
-        lap3psix = max(abs(lap3psi), abs(lap3psix))
-        dqdt(i, j) = -qg_c * psix - qg_eps * jac - qg_a * lap3psi + qg_tau0 * sin(tau * y(j))
+        dqdt(i, j) = -qg_c * psix - qg_eps * jac - qg_a * lap3psi &
+          + qg_tau0 * sin(tau * y(j))
       end do
     end do
-!    print *, "nl: ", qg_eps * jacx, " df: ", qg_a * lap3psi
-!    stop
 
   end function qg_step
 

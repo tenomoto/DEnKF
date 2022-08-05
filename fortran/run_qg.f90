@@ -7,7 +7,7 @@ program run_qg
   implicit none
 
   integer, parameter :: &
-    n = 129, nstep = 500000, tsave = 100000, nsave = 100, un = 51
+    n = 129, nstep = 1000, tsave = 0, nsave = 100, un = 51
   real(kind=dp), parameter ::  dt = 1.5d0
 
   real(kind=dp), dimension(:), allocatable :: y
