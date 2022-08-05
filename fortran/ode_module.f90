@@ -6,7 +6,7 @@ module ode_module
 
 contains
 
-  function ode_rk4(f, x, dt, params) result(fu)
+  function ode_rk4(f, x, dt, params) result(xo)
     real(kind=dp), dimension(:, :), intent(in) :: x
     real(kind=dp), intent(in) :: dt
     real(kind=dp), dimension(:), intent(in) :: params
@@ -24,16 +24,16 @@ contains
     end interface
 
     real(kind=dp), dimension(:, :), allocatable :: &
-      k1, k2, k3, k4, fu
+      k1, k2, k3, k4, xo
     integer :: n
  
     n = size(x, 1)
-    allocate(k1(n, n), k2(n, n), k3(n, n), k4(n, n), fu(n, n))
+    allocate(k1(n, n), k2(n, n), k3(n, n), k4(n, n), xo(n, n))
     k1 = dt * f(x, params)
-    k2 = dt * f(x + 0.5*k1, params)
-    k3 = dt * f(x + 0.5*k2, params)
+    k2 = dt * f(x + 0.5d0 * k1, params)
+    k3 = dt * f(x + 0.5d0 * k2, params)
     k4 = dt * f(x + k3, params)
-    fu = (k1 + 2.0d0 * (k2 + k3) + k4) / 6.0d0
+    xo = (k1 + 2.0d0 * (k2 + k3) + k4) / 6.0d0 
 
   end function ode_rk4
 

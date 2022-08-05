@@ -1,5 +1,7 @@
 program run_qg
-  use, intrinsic :: iso_fortran_env, only: dp => real64
+!  use, intrinsic :: iso_fortran_env, only: dp => real64
+  use, intrinsic :: iso_fortran_env, only: &
+    sp => real32, dp => real64
   use mg_module, only: mg_itermax, mg_tol
   use qg_module, only: qg_init, qg_step, qg_save, &
     qg_c, qg_f, qg_eps, qg_a, qg_tau0, qg_psi
@@ -16,14 +18,13 @@ program run_qg
   character(len=10) :: fname
   integer :: i, j, r
 
-!  mg_itermax = [1, 1, 1000]
-!  mg_tol = 1.0d-4
+  mg_itermax = [1, 1, 100]
+  mg_tol = 1.0d-4
 !  qg_c = 0.0d0
 !  qg_f = 0.0d0
 !  qg_eps = 1.0d0
 !  qg_a = 2.0d-12
 !  qg_tau0 = 0.0d0
-  mg_itermax = [1, 1, 100]
   call qg_init(n)
   allocate(q(n, n), dq(n, n))
   q(:, :) = 0.0d0 

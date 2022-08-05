@@ -28,8 +28,8 @@ contains
       y(j) = 1.0d0 * (j - 1) / (n - 1)
     end do
     d = y(2) - y(1)
-    d2r = 1.0d0 / d * 2
-    ddr = 1.0d0 / d * d
+    d2r = 1.0d0 / (d * 2)
+    ddr = 1.0d0 / (d * d)
     qg_psi(:, :) = 0.0d0
 
   end subroutine qg_init
@@ -45,18 +45,25 @@ contains
     real(kind=dp), dimension(:), intent(in) :: params
 
     real(kind=dp) :: psix, lap3psi, jac
-    real(kind=dp), dimension(:, :), allocatable :: dqdt, lap2psi
+    real(kind=dp), dimension(:, :), allocatable :: &
+      dqdt, lap1psi, lap2psi
     integer :: n, i, j
 
     n = size(q, 1)
-    allocate(dqdt(n, n), lap2psi(n, n))
+    allocate(dqdt(n, n), lap1psi(n, n), lap2psi(n, n))
     dqdt(:, :) = 0.0d0
+    lap1psi(:, :) = 0.0d0
     lap2psi(:, :) = 0.0d0
 
     call mg_vcycle(qg_psi, q, d, qg_f)
     do j=2, n-1
       do i=2, n-1
-        lap2psi(i, j) = fd_laplacian(q + qg_f * qg_psi, i, j) * ddr
+        lap1psi(i, j) = q(i, j) + qg_f * qg_psi(i, j)
+      end do
+    end do
+    do j=2, n-1
+      do i=2, n-1
+        lap2psi(i, j) = fd_laplacian(lap1psi, i, j) * ddr
       end do
     end do
     do j=2, n-1

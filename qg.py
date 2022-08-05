@@ -3,6 +3,7 @@ import numpy as np
 from fd import laplacian, jacobian
 from mg import v_cycle
 from ode import rk4
+import sys
 
 
 def step(q, psi, y, c, f, eps, a, tau0, itermax, tol):
@@ -29,12 +30,12 @@ if __name__ == "__main__":
     x = np.linspace(0.0, 1.0, n)
     y = np.linspace(0.0, 1.0, n)
     q = np.zeros([n, n])
-#    seed = 514
-#    rng = np.random.default_rng(514)
-#    q[1:-1, 1:-1] = 2.0 * rng.random([n-2, n-2]) - 1.0
+    seed = 514
+    rng = np.random.default_rng(514)
+    q[1:-1, 1:-1] = 2.0 * rng.random([n-2, n-2]) - 1.0
     psi = np.zeros([n, n])
-#    c, f, eps, a, tau0 = 0.0, 0.0, 1.0, 2.0e-12, 0.0
-    c, f, eps, a, tau0 = 1.0, 1600, 1.0e-5, 2.0e-12, -tau
+    c, f, eps, a, tau0 = 0.0, 0.0, 1.0, 2.0e-12, 0.0
+#    c, f, eps, a, tau0 = 1.0, 1600, 1.0e-5, 2.0e-12, -tau
     tol = 1.0e-4
     params = c, f, eps, a, tau0, itermax, tol
     for i in range(nstep+1): 
@@ -42,4 +43,8 @@ if __name__ == "__main__":
             np.save(f"q{i:06d}.npy", q)
             np.save(f"p{i:06d}.npy", psi)
         print(f"step {i} p: min={psi.min():5.2e} max={psi.max():5.2e} q: min={q.min():5.2e} max={q.max():5.2e}")
+        dq = np.zeros([n, n])
+        dq[1:-1, 1:-1] = rk4(step, q, dt, psi, y, *params)[1:-1, 1:-1]
+        np.save(f"dq.npy", dq)
+        sys.exit()
         q[1:-1, 1:-1] += rk4(step, q, dt, psi, y, *params)[1:-1, 1:-1]

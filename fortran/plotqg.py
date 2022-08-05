@@ -16,8 +16,9 @@ zmax = [1.0e5, 1.0e1]
 title = ["pv", r"$\psi$"]
 for i in range(len(axs)):
     ax = axs[i]
-    c = ax.pcolormesh(x, y, z[i],
-            cmap="RdYlBu_r", vmin=-zmax[i], vmax=zmax[i])
+    c = ax.pcolormesh(x, y, z[i])
+#    c = ax.pcolormesh(x, y, z[i],
+#            cmap="RdYlBu_r", vmin=-zmax[i], vmax=zmax[i])
     ax.set_title(title[i])
     ax.set_aspect("equal")
     fig.colorbar(c, ax=ax, shrink=0.8)
