@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-t = 132100
+t = 1000
 n = 129
 q = np.fromfile(f"q{t:06d}.dat", dtype=np.float32).reshape(n, n)
 psi = np.fromfile(f"p{t:06d}.dat", dtype=np.float32).reshape(n, n)

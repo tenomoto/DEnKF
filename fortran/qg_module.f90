@@ -7,7 +7,7 @@ module qg_module
 
   real(kind=dp), private, parameter :: tau = 6.283185307179586d0
   real(kind=dp), public  :: &
-    qg_c = 1.0d0, qg_f = 1.6d3, qg_eps = 1.0d-5, &
+    qg_beta = 1.0d0, qg_f = 1.6d3, qg_eps = 1.0d-5, &
     qg_a = 2.0d-12, qg_tau0 = -tau
   real(kind=dp), dimension(:, :), allocatable, public :: qg_psi
 
@@ -71,7 +71,7 @@ contains
         psix = (qg_psi(i+1, j) - qg_psi(i-1, j)) * d2r
         lap3psi = fd_laplacian(lap2psi, i, j) * ddr
         jac = fd_jacobian(qg_psi, q, i, j) * ddr
-        dqdt(i, j) = -qg_c * psix - qg_eps * jac - qg_a * lap3psi &
+        dqdt(i, j) = -qg_beta * psix - qg_eps * jac - qg_a * lap3psi &
           + qg_tau0 * sin(tau * y(j))
       end do
     end do

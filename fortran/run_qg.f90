@@ -4,7 +4,7 @@ program run_qg
     sp => real32, dp => real64
   use mg_module, only: mg_itermax, mg_tol
   use qg_module, only: qg_init, qg_step, qg_save, &
-    qg_c, qg_f, qg_eps, qg_a, qg_tau0, qg_psi
+    qg_beta, qg_f, qg_eps, qg_a, qg_tau0, qg_psi
   use ode_module, only: ode_rk4
   implicit none
 
@@ -20,7 +20,7 @@ program run_qg
 
   mg_itermax = [1, 1, 100]
   mg_tol = 1.0d-4
-!  qg_c = 0.0d0
+!  qg_beta = 0.0d0
 !  qg_f = 0.0d0
 !  qg_eps = 1.0d0
 !  qg_a = 2.0d-12
