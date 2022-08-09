@@ -36,7 +36,7 @@ def gen_obs_covariance(rin, nobs, invert=False):
 def analysis(xf, o_minus_b, pf12, ymat, r):
     nstate, nens = pf12.shape
     nobs = o_minus_b.size
-    if nobs > nens:
+    if nobs < nens:
         rmat = gen_obs_covariance(r, nobs)
         kalman_gain = calc_kalman_gain_mform(pf12, ymat, rmat)
     else:
