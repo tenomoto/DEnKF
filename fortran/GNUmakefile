@@ -3,19 +3,30 @@
 
 FC = /opt/local/bin/gfortran
 FFLAGS = -O2
-OBJS = fd_module.o mg_module.o ode_module.o qg_module.o
-SRCS = $(OBJS:.o=.f90)
+MGOBJS = fd_module.o mg_module.o
+QGOBJS = $(MGOBJS) ode_module.o qg_module.o
+DENKFOBJS = la_module.o denkf_module.o
+DENKFLDFLAGS = -L/opt/local/lib
+DENKFLIBS = -lopenblas -llapack
 
-#TARGET = test_mg
-TARGET = run_qg
+MG = test_mg
+QG = run_qg
+DENKF = run_denkf
+EXES = $(MG) $(QG) $(DENKF)
 
-all : $(TARGET)
+all : $(QG) $(DENKF)
 
-$(TARGET) : $(OBJS) $(TARGET).o
+$(MG) : $(MGOBJS) $(MG).o
 	$(FC) $^ -o $@
 
+$(QG) : $(QGOBJS) $(QG).o
+	$(FC) $^ -o $@
+
+$(DENKF) : $(DENKFOBJS) $(DENKF).o
+	$(FC) $(DENKFLDFLAGS) $^ -o $@ $(DENKFLIBS)
+
 clean :
-	rm -f *.o *.mod $(TARGET)
+	rm -f *.o *.mod $(EXES)
 
 .f90.o :
 	$(FC) $(FFLAGS) $< -c
