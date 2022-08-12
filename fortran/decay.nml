@@ -1,0 +1,12 @@
+&mg
+  mg_itermax = 1, 1, 100
+  mg_tol = 1.0d-4
+/
+&qg
+  randinit = .true.
+  qg_beta = 0.0d0
+  qg_f = 0.0d0
+  qg_eps = 1.0d0
+  qg_a = 2.0d-12
+  qg_tau0 = 0.0d0
+/

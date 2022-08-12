@@ -22,21 +22,16 @@ contains
 
   end subroutine denkf_clean
 
-  subroutine denkf_analysis(x, p12, y, hmat, rmat, rho)
+  subroutine denkf_analysis(x, p12, pf, y, hmat, rmat)
     use la_module, only: la_inv
     real(kind=dp), dimension(:), intent(inout) :: x
     real(kind=dp), dimension(:, :), intent(inout) :: p12
     real(kind=dp), dimension(:), intent(in) :: y
-    real(kind=dp), dimension(:, :), intent(in) :: hmat, rmat
-    real(kind=dp), dimension(:, :), intent(in), optional :: rho
+    real(kind=dp), dimension(:, :), intent(in) :: pf, hmat, rmat
 
     integer :: nobs
 
     nobs = size(y)
-    pf(:, :) = matmul(p12, transpose(p12))
-    if (present(rho)) then
-      pf(:, :) = rho(:, :) * pf(:, :)
-    end if
     hphr(:, :) = matmul(matmul(hmat, pf), transpose(hmat)) + rmat
     call la_inv(hphr)
     kmat(:, :) = matmul(matmul(pf, transpose(hmat)), hphr)

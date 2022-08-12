@@ -12,24 +12,28 @@ program run_qg
     n = 129, nstep = 1000, tsave = 0, nsave = 100, un = 51
   real(kind=dp), parameter ::  dt = 1.5d0
 
+
   real(kind=dp), dimension(:), allocatable :: y
   real(kind=dp), dimension(:, :), allocatable :: q, dq
   real(kind=dp), dimension(1) :: dummy_params = [0.0d0]
   character(len=10) :: fname
   integer :: i, j, r
+  logical :: randinit
 
-  mg_itermax = [1, 1, 100]
-  mg_tol = 1.0d-4
-!  qg_beta = 0.0d0
-!  qg_f = 0.0d0
-!  qg_eps = 1.0d0
-!  qg_a = 2.0d-12
-!  qg_tau0 = 0.0d0
+  namelist /mg/ mg_itermax, mg_tol
+  namelist /qg/ randinit, qg_beta, qg_f, qg_eps, qg_a, qg_tau0
+
+  read(unit=5, nml=mg)
+  read(unit=5, nml=qg)
+  
+
   call qg_init(n)
   allocate(q(n, n), dq(n, n))
   q(:, :) = 0.0d0 
-!  call random_number(q(2:n-1, 2:n-1))
-!  q(2:n-1, 2:n-1) = 2.0d0 * q(2:n-1, 2:n-1) - 1.0d0
+  if (randinit) then
+    call random_number(q(2:n-1, 2:n-1))
+    q(2:n-1, 2:n-1) = 2.0d0 * q(2:n-1, 2:n-1) - 1.0d0
+  end if
 
   r = 1
   do i=0, nstep
