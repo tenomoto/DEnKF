@@ -2,8 +2,18 @@
   mg_itermax = 1, 1, 100
   mg_tol = 1.0d-4
 /
-&qg
-  randinit = .true.
+&qg_grid
+  imax = 129,
+  jmax = 129,
+/
+&qt_time
+  init = "rand",
+  nstep = 1000,
+  tsave = 0,
+  nsave = 4,
+  dt = 1.5d0,
+/
+&qg_param
   qg_beta = 0.0d0
   qg_f = 0.0d0
   qg_eps = 1.0d0

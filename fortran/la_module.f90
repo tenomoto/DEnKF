@@ -7,7 +7,7 @@ module la_module
 contains
 
   subroutine la_inv(amat)
-    real(kind=dp), dimension(:, :), intent(in) :: amat
+    real(kind=dp), dimension(:, :), intent(inout) :: amat
 
     integer :: n, lda, lwork = -1, info, i 
     integer, dimension(:), allocatable :: ipiv
@@ -17,19 +17,16 @@ contains
     lda = size(amat, 1)
     n = size(amat, 2)
     allocate(ipiv(n))
+    call dgetrf(n, n, amat, lda, ipiv, info)
     call dgetri(n, amat, lda, ipiv, dummy, lwork, info)
     if (info /= 0) then
       print *, "error initializing dgetri: ", info
       stop
-    else
-      allocate(work(lwork))
     end if
+    lwork = nint(dummy(1))
+    allocate(work(lwork))
     call dgetri(n, amat, lda, ipiv, work, lwork, info)
-    do i=1, n
-      if (ipiv(i) /= i) then
-        call dswap(n, amat(i, :), 1, amat(ipiv(i), :), 1)
-      end if
-    end do
+
     deallocate(work)
 
   end subroutine la_inv

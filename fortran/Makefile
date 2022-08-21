@@ -3,26 +3,41 @@
 
 FC = /opt/local/bin/gfortran
 FFLAGS = -O2
-QGOBJS = fd_module.o mg_module.o ode_module.o qg_module.o
-DENKFOBJS = la_module.o denkf_module.o
-DENKFLDFLAGS = -L/opt/local/lib
-DENKFLIBS = -lopenblas -llapack
+MGOBJS = fd_module.o mg_module.o
+QGOBJS = $(MGOBJS) math_module.o ode_module.o qg_module.o
+INVOBJS = la_module.o
+GENOBSOBJS = math_module.o genobs.o
+DENKFOBJS = math_module.o la_module.o denkf_module.o
+LDFLAGS = -L/opt/local/lib
+BLASLAPACK = -lopenblas -llapack
 
 MG = test_mg
 QG = run_qg
+INV = test_inv
+GENLOC = genloc
+GENOBS = genobs
 DENKF = run_denkf
-EXES = $(MG) $(QG) $(DENKF)
+EXES = $(QG) $(GENLOC) $(GENOBS) $(DENKF)
 
-all : $(QG) $(DENKF)
+all : $(EXES)
 
-$(MG) : $(MG).o
-	$(FC) $< -o $@
+$(MG) : $(MGOBJS) $(MG).o
+	$(FC) $> -o $@
 
 $(QG) : $(QGOBJS) $(QG).o
 	$(FC) $> -o $@
 
+$(INV) : $(INVOBJS) $(INV).o
+	$(FC) $(LDFLAGS) $> -o $@ $(BLASLAPACK)
+
+$(GENLOC) : $(GENLOC).o
+	$(FC) $< -o $@
+
+$(GENOBS) : $(GENOBSOBJS) $(GENOBS).o
+	$(FC) $(LDFLAGS) $> -o $@
+
 $(DENKF) : $(DENKFOBJS) $(DENKF).o
-	$(FC) $(DENKFLDFLAGS) $> -o $@ $(DENKFLIBS)
+	$(FC) $(LDFLAGS) $> -o $@ $(BLASLAPACK)
 
 clean :
 	rm -f *.o *.mod $(EXES)

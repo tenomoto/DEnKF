@@ -1,0 +1,34 @@
+How to run DEnKF with QG
+
+Make sure you have executable by running
+
+% make
+
+1. Prepare a long free run.
+
+% mkdir free
+% cd free
+% ../run_qg < ../free.nml
+
+2. Toss a dice.
+
+% ./rand.sh
+
+3. Generate a true run and observations
+
+% mkdir cycle
+% ./gentrue.sh
+% ./genobs.sh
+
+3. Initialize ensemble
+
+% ./initens.sh
+
+4. Run data assimlation.
+
+% ./cycle.sh
+
+5. Plot difference and error.
+
+% python plotdiff.py 300
+% python ploterr.py
