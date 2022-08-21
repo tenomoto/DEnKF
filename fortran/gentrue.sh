@@ -1,10 +1,16 @@
 #!/bin/sh
 basedir=$(cd $(dirname $0); pwd)
+freedir=${basedir}/free
 truedir=${basedir}/cycle/true
+rfile=${basedir}/rand.txt
 qg=${basedir}/run_qg
 if [ ! -d ${truedir} ]; then
   mkdir ${truedir}
 fi
+t=$(head -1 ${rfile})
+for x in q p; do
+  cp ${freedir}/${x}${t}.dat ${truedir}/${x}000000.dat
+done
 cd ${truedir}
 cat << EOF | ${qg}
 &mg
@@ -17,7 +23,7 @@ cat << EOF | ${qg}
 /
 &qg_time
   init = "file" 
-  nstep = 1200 
+  nstep = 1200
   tsave = 0
   nsave = 4
   dt = 1.25d0

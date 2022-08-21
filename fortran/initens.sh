@@ -10,7 +10,6 @@ for d in forecast analysis; do
   fi
   mkdir ${rundir}/${d}
 done
-t=$(head -1 ${rfile})
 t=$(awk "NR==2{print}" ${rfile})
 #((t = t - nens / 2 * 100))
 #if [ ${t} -lt 100000 ]; then
