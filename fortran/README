@@ -20,15 +20,19 @@ Make sure you have executable by running
 % ./gentrue.sh
 % ./genobs.sh
 
-3. Initialize ensemble
+4. Generate localization matrix.
+
+% ./genloc.sh
+
+5. Initialize ensemble
 
 % ./initens.sh
 
-4. Run data assimlation.
+6. Run data assimlation.
 
 % ./cycle.sh
 
-5. Plot difference and error.
+7. Plot difference and error.
 
 % python plotdiff.py 300
 % python ploterr.py
