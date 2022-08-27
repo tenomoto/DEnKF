@@ -4,7 +4,7 @@ exp=cycle
 expdir=${basedir}/${exp}
 denkf=${basedir}/run_denkf
 qg=${basedir}/run_qg
-ncycle=300
+ncycle=100
 nens=25
 nstep=4
 n=16641
@@ -25,7 +25,7 @@ for i in $(seq 0 ${ncycle}); do
 /
 &denkf_cycle
   inflation_factor = 1.06
-  localize = .true.
+  localize = .false.
   step = ${step}
   nstep = ${nstep}
   nens = ${nens}

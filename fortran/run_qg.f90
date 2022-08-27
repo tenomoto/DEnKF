@@ -2,9 +2,9 @@ program run_qg
   use, intrinsic :: iso_fortran_env, only: &
     sp => real32, dp => real64
   use math_module
-  use mg_module, only: mg_itermax, mg_tol
+  use mg_module, only: mg_itermax, mg_tol, mg_vcycle
   use qg_module, only: qg_init, qg_step, qg_psi2q, qg_save, qg_load, &
-    qg_beta, qg_f, qg_eps, qg_a, qg_tau0, qg_psi
+    qg_beta, qg_f, qg_eps, qg_a, qg_tau0, qg_psi, qg_d
   use ode_module, only: ode_rk4
   implicit none
 
@@ -46,6 +46,7 @@ program run_qg
     print "(a, i6, 4(a, e12.4))", "step ", i, " p: min=", minval(qg_psi), " max=", maxval(qg_psi), &
       " q: min=", minval(q), " max=", maxval(q)
     if (i >= tsave .and. mod(i, nsave) == 0) then
+      call mg_vcycle(qg_psi, q, qg_d, qg_f)
       call qg_save(un, "q", i, q)
       call qg_save(un, "p", i, qg_psi)
       r = r + 1

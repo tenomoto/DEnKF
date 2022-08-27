@@ -8,11 +8,11 @@ module qg_module
 
   real(kind=dp), public  :: &
     qg_beta = 1.0d0, qg_f = 1.6d3, qg_eps = 1.0d-5, &
-    qg_a = 2.0d-12, qg_tau0 = -math_tau
+    qg_a = 2.0d-12, qg_tau0 = -math_tau, qg_d
   real(kind=dp), dimension(:, :), allocatable, public :: qg_psi
 
   real(kind=dp), dimension(:), allocatable, private :: y
-  real(kind=dp), private :: d, ddr, d2r
+  real(kind=dp), private :: ddr, d2r
 
   public :: qg_init, qg_clean, qg_psi2q, qg_step, qg_save, qg_load
 
@@ -27,9 +27,9 @@ contains
     do j=1, jmax
       y(j) = 1.0d0 * (j - 1) / (jmax - 1)
     end do
-    d = y(2) - y(1)
-    d2r = 1.0d0 / (d * 2)
-    ddr = 1.0d0 / (d * d)
+    qg_d = y(2) - y(1)
+    d2r = 1.0d0 / (qg_d * 2)
+    ddr = 1.0d0 / (qg_d * qg_d)
     qg_psi(:, :) = 0.0d0
 
   end subroutine qg_init
@@ -72,7 +72,7 @@ contains
     lap1psi(:, :) = 0.0d0
     lap2psi(:, :) = 0.0d0
 
-    call mg_vcycle(qg_psi, q, d, qg_f)
+    call mg_vcycle(qg_psi, q, qg_d, qg_f)
     do j=2, jmax-1
       do i=2, imax-1
         lap1psi(i, j) = q(i, j) + qg_f * qg_psi(i, j)

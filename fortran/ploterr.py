@@ -8,7 +8,7 @@ ncycle = 300
 imax, jmax = 129, 129
 n = imax * jmax
 rstd = 2.0
-exp = "cycle"
+exp = "cycle_noloc"
 
 l2 = np.zeros(ncycle+1)
 sd = np.zeros(ncycle+1)
