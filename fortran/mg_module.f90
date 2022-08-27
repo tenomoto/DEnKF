@@ -178,6 +178,11 @@ contains
         print *, "restrict: ", l, " res=", res, " niter=", niter
       end if
     end do
+    if (mg_debug) then
+      open(unit=u, file="mg.dat", access="direct", recl=size(p % array)*8, &
+        action="write", status="replace")
+      write(unit=u, rec=1) p % array
+    end if
     do l=nlev, 2, -1
       call vc_get(p, l, pin)
       call vc_get(p, l - 1, pout)
@@ -191,6 +196,10 @@ contains
       end if
     end do
     p0(2:n-1, 2:n-1) = pout(2:n-1, 2:n-1)
+    if (mg_debug) then
+      write(unit=u, rec=2) p % array
+      close(unit=u)
+    end if
 
   end subroutine mg_vcycle
 
@@ -204,8 +213,8 @@ contains
     real(kind=dp) :: x, y
     real(kind=dp), dimension(n, n) :: ptrue, p, q
 
-    mg_itermax = [1, 1, 10000]
-    mg_tol = 1.0d-4
+    mg_itermax = [1, 1, 20000]
+    mg_tol = 1.0d-5
     y = 0.0d0
     do j=1, n
       x = 0.0d0

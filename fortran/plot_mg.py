@@ -21,6 +21,7 @@ for i in range(nlev):
     ax.set_aspect("equal")
     off += n * n
     n = n // 2 + 1
-fig.savefig("mg_test.png", bbox_inches="tight", dpi=300)
-plt.show()
+#fig.savefig("mg_test.png", bbox_inches="tight", dpi=300)
+fig.savefig("mg_test.pdf", bbox_inches="tight")
+#plt.show()
 
